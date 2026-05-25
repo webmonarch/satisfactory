@@ -99,7 +99,11 @@ export function ProductionGraph({
     >
       <Background color="#2a2f3d" gap={24} />
       <Controls className="!bg-panel !border-border" />
-      <MiniMap className="!bg-panel" nodeColor="#5dc1ff" maskColor="rgba(0,0,0,0.6)" />
+      <MiniMap
+        className="!bg-panel !hidden md:!block"
+        nodeColor="#5dc1ff"
+        maskColor="rgba(0,0,0,0.6)"
+      />
     </ReactFlow>
   );
 }
