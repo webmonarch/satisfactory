@@ -8,14 +8,30 @@ import { RecipePickerModal } from './components/RecipePickerModal';
 import { SummaryPanel } from './components/SummaryPanel';
 
 const DEFAULT_TARGET = 'Desc_ModularFrame_C';
-const DEFAULT_RATE = 10;
+
+/**
+ * Output rate (items/min) of one machine running the default recipe for this item.
+ * Falls back to 1/min if no recipe is known.
+ */
+function defaultRateForItem(
+  data: GameData,
+  itemClass: string,
+  allowAlternates: boolean,
+): number {
+  const recipeKey = pickDefaultRecipe(data, itemClass, allowAlternates);
+  if (!recipeKey) return 1;
+  const recipe = data.recipes[recipeKey];
+  const product = recipe.products.find((p) => p.item === itemClass);
+  if (!product) return 1;
+  return product.amount * (60 / recipe.time);
+}
 
 export function App() {
   const [gameData, setGameData] = useState<GameData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [targetItem, setTargetItem] = useState(DEFAULT_TARGET);
-  const [targetRate, setTargetRate] = useState(DEFAULT_RATE);
+  const [targetRate, setTargetRate] = useState(1);
   const [recipeChoices, setRecipeChoices] = useState<Record<string, string>>({});
   const [pinnedRaw, setPinnedRaw] = useState<Record<string, boolean>>({});
   const [allowAlternates, setAllowAlternates] = useState(false);
@@ -27,11 +43,14 @@ export function App() {
     loadGameData()
       .then((d) => {
         setGameData(d);
+        let initial = DEFAULT_TARGET;
         if (!d.items[DEFAULT_TARGET]) {
           // Fall back to first non-raw item if our default isn't present.
           const fallback = d.allItems.find((cn) => !d.rawItems.has(cn));
-          if (fallback) setTargetItem(fallback);
+          if (fallback) initial = fallback;
         }
+        setTargetItem(initial);
+        setTargetRate(defaultRateForItem(d, initial, false));
       })
       .catch((e) => setError(String(e)));
   }, []);
@@ -107,6 +126,7 @@ export function App() {
             value={targetItem}
             onChange={(v) => {
               setTargetItem(v);
+              setTargetRate(defaultRateForItem(gameData, v, allowAlternates));
               // Reset per-item choices when we switch targets so the new tree starts clean.
               setRecipeChoices({});
               setPinnedRaw({});
