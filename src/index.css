@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+/* React Flow theming */
+.react-flow__attribution { display: none; }
+.react-flow__edge-text { font-family: ui-sans-serif, system-ui, sans-serif; }
+.react-flow__controls-button {
+  background: #1e2230 !important;
+  border-bottom: 1px solid #2a2f3d !important;
+  color: #e2e8f0 !important;
+}
+.react-flow__controls-button:hover { background: #2a2f3d !important; }
