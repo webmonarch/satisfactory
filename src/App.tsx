@@ -21,6 +21,7 @@ export function App() {
   const [allowAlternates, setAllowAlternates] = useState(false);
 
   const [pickerForItem, setPickerForItem] = useState<string | null>(null);
+  const [mobileView, setMobileView] = useState<'plan' | 'graph'>('plan');
 
   useEffect(() => {
     loadGameData()
@@ -63,16 +64,44 @@ export function App() {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col">
-      <header className="px-4 py-3 border-b border-border bg-panel flex items-center gap-6">
-        <div className="text-lg font-semibold text-accent">Satisfactory Dependencies</div>
-        <div className="text-xs text-slate-400">
-          {gameData.allItems.length} items · {Object.keys(gameData.recipes).length} recipes
+    <div className="h-[100dvh] w-screen flex flex-col">
+      <header className="px-4 py-3 border-b border-border bg-panel flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-lg font-semibold text-accent truncate">
+            <span className="hidden sm:inline">Satisfactory Dependencies</span>
+            <span className="sm:hidden">Satisfactory Deps</span>
+          </div>
+          <div className="text-[11px] text-slate-400 hidden sm:block">
+            {gameData.allItems.length} items · {Object.keys(gameData.recipes).length} recipes
+          </div>
+        </div>
+        {/* Mobile-only view switcher */}
+        <div className="md:hidden flex bg-panel2 border border-border rounded overflow-hidden text-sm shrink-0">
+          <button
+            className={`px-3 py-1.5 ${
+              mobileView === 'plan' ? 'bg-accent text-bg font-medium' : 'text-slate-300'
+            }`}
+            onClick={() => setMobileView('plan')}
+          >
+            Plan
+          </button>
+          <button
+            className={`px-3 py-1.5 ${
+              mobileView === 'graph' ? 'bg-accent text-bg font-medium' : 'text-slate-300'
+            }`}
+            onClick={() => setMobileView('graph')}
+          >
+            Graph
+          </button>
         </div>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        <aside className="w-72 border-r border-border bg-panel p-4 overflow-y-auto shrink-0 space-y-4">
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row">
+        <aside
+          className={`${
+            mobileView === 'plan' ? 'flex' : 'hidden'
+          } md:flex flex-col flex-1 md:flex-none md:w-72 md:border-r border-border bg-panel p-4 overflow-y-auto shrink-0 space-y-4`}
+        >
           <ItemPicker
             gameData={gameData}
             value={targetItem}
@@ -129,8 +158,13 @@ export function App() {
           <SummaryPanel solution={solution} gameData={gameData} />
         </aside>
 
-        <main className="flex-1 min-w-0 bg-bg">
+        <main
+          className={`${
+            mobileView === 'graph' ? 'block' : 'hidden'
+          } md:block flex-1 min-w-0 bg-bg`}
+        >
           <ProductionGraph
+            key={mobileView}
             solution={solution}
             gameData={gameData}
             onPickAlternate={(itemClass) => setPickerForItem(itemClass)}
